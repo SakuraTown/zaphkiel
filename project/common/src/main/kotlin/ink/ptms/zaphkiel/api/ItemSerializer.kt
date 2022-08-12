@@ -19,6 +19,8 @@ interface ItemSerializer {
     @UseWarning("原版物品不会产生异常，但会抹除所有数据")
     fun serialize(itemStream: ItemStream): SerializedItem
 
+    fun serializeToYAML(itemStack: ItemStack, name: String)
+
     fun deserialize(json: String): ItemStream
 
     fun deserialize(json: JsonObject): ItemStream

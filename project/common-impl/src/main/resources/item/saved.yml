@@ -1,0 +1,4 @@
+__group__:
+  material: GRASS_BLOCK
+  name: "§6保存的物品"
+  priority: 1

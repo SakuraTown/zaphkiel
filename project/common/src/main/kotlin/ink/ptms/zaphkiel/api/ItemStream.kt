@@ -6,6 +6,7 @@ import ink.ptms.zaphkiel.annotation.UseWarning
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import taboolib.module.nms.ItemTag
+import java.util.*
 
 /**
  * Zaphkiel
@@ -117,6 +118,8 @@ abstract class ItemStream {
      */
     @UseWarning("原版物品将产生异常")
     abstract fun getZaphkielData(): ItemTag
+
+    abstract fun getSoulBindOwner(): UUID?
 
     /**
      * 获取物品唯一数据

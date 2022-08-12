@@ -12,6 +12,7 @@ import org.bukkit.inventory.ItemStack
 import taboolib.common.util.unsafeLazy
 import taboolib.module.nms.*
 import taboolib.platform.util.isNotAir
+import java.util.*
 
 /**
  * Zaphkiel
@@ -20,7 +21,10 @@ import taboolib.platform.util.isNotAir
  * @author 坏黑
  * @since 2022/7/23 17:02
  */
-open class DefaultItemStream(override val sourceItem: ItemStack, override val sourceCompound: ItemTag = sourceItem.getItemTag()) : ItemStream() {
+open class DefaultItemStream(
+    override val sourceItem: ItemStack,
+    override val sourceCompound: ItemTag = sourceItem.getItemTag()
+) : ItemStream() {
 
     override val signal = hashSetOf<ItemSignal>()
 
@@ -61,7 +65,8 @@ open class DefaultItemStream(override val sourceItem: ItemStack, override val so
 
     override fun rebuild(player: Player?): ItemStream {
         val item = getZaphkielItem()
-        val itemStreamGenerated = DefaultItemStreamGenerated(sourceItem, item.name.toMutableMap(), item.lore.toMutableMap(), sourceCompound)
+        val itemStreamGenerated =
+            DefaultItemStreamGenerated(sourceItem, item.name.toMutableMap(), item.lore.toMutableMap(), sourceCompound)
         return item.build(player, itemStreamGenerated)
     }
 
@@ -93,6 +98,7 @@ open class DefaultItemStream(override val sourceItem: ItemStack, override val so
         return Zaphkiel.api().getItemManager().getItem(getZaphkielName())!!
     }
 
+    @Deprecated("命名歧义", replaceWith = ReplaceWith("getZaphkielId"))
     override fun getZaphkielName(): String {
         if (isVanilla()) {
             error("This item is not an extension item.")
@@ -100,6 +106,7 @@ open class DefaultItemStream(override val sourceItem: ItemStack, override val so
         return getZaphkielCompound()!![ItemKey.ID.key]!!.asString()
     }
 
+    @Deprecated("命名歧义", replaceWith = ReplaceWith("getZaphkielHash"))
     @LegacyName("getZaphkielHash")
     override fun getZaphkielVersion(): String {
         if (isVanilla()) {
@@ -115,6 +122,15 @@ open class DefaultItemStream(override val sourceItem: ItemStack, override val so
         return getZaphkielCompound()!![ItemKey.DATA.key]!!.asCompound()
     }
 
+    override fun getSoulBindOwner(): UUID? {
+        val asString = getZaphkielCompound()!![ItemKey.DATA.key]!!.asCompound()["SoulBind"]?.asString() ?: return null
+        return try {
+            UUID.fromString(asString)
+        } catch (e: Exception) {
+            null
+        }
+    }
+
     override fun getZaphkielUniqueData(): ItemTag? {
         if (isVanilla()) {
             error("This item is not an extension item.")
@@ -126,7 +142,8 @@ open class DefaultItemStream(override val sourceItem: ItemStack, override val so
         if (isVanilla()) {
             error("This item is not an extension item.")
         }
-        return getZaphkielCompound()!![ItemKey.META_HISTORY.key]?.asList()?.map { it.asString() }?.toList() ?: emptyList()
+        return getZaphkielCompound()!![ItemKey.META_HISTORY.key]?.asList()?.map { it.asString() }?.toList()
+            ?: emptyList()
     }
 
     override fun setZaphkielMetaHistory(meta: List<String>) {

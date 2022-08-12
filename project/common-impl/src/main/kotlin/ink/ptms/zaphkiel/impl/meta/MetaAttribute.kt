@@ -1,6 +1,7 @@
 package ink.ptms.zaphkiel.impl.meta
 
 import ink.ptms.zaphkiel.item.meta.Meta
+import ink.ptms.zaphkiel.item.meta.MetaKey
 import org.bukkit.attribute.AttributeModifier
 import org.bukkit.entity.Player
 import org.bukkit.inventory.EquipmentSlot
@@ -43,7 +44,6 @@ class MetaAttribute(root: ConfigurationSection) : Meta(root) {
                         } else {
                             AttributeModifier(UUID.randomUUID(), "zaphkiel", amount, operation)
                         }
-                        org.bukkit.attribute.Attribute.GENERIC_ATTACK_SPEED
                         attributeList.add(attributeKey.toBukkit() to modifier)
                     } else {
                         try {
@@ -51,7 +51,14 @@ class MetaAttribute(root: ConfigurationSection) : Meta(root) {
                             val attribute = ItemTag()
                             val attributeValue = root.getString("meta.attribute.$hand.$name")!!
                             if (attributeValue.endsWith("%")) {
-                                attribute["Amount"] = ItemTagData(NumberConversions.toDouble(attributeValue.substring(0, attributeValue.length - 1)) / 100.0)
+                                attribute["Amount"] = ItemTagData(
+                                    NumberConversions.toDouble(
+                                        attributeValue.substring(
+                                            0,
+                                            attributeValue.length - 1
+                                        )
+                                    ) / 100.0
+                                )
                                 attribute["Operation"] = ItemTagData(1)
                             } else {
                                 attribute["Amount"] = ItemTagData(NumberConversions.toDouble(attributeValue))
@@ -73,9 +80,6 @@ class MetaAttribute(root: ConfigurationSection) : Meta(root) {
             }
         }
     }
-
-    override val id: String
-        get() = "attribute"
 
     override fun build(player: Player?, compound: ItemTag) {
         if (MinecraftVersion.majorLegacy < 11600) {
@@ -99,6 +103,18 @@ class MetaAttribute(root: ConfigurationSection) : Meta(root) {
 
     override fun drop(player: Player?, compound: ItemTag) {
         compound.remove("AttributeModifiers")
+    }
+
+    override fun fromMeta(key: String, itemMeta: ItemMeta, compound: ItemTag) {
+        val attributeModifiers = itemMeta.attributeModifiers ?: return
+        val section = root.createSection(key)
+        attributeModifiers.forEach { attribute, modifier ->
+            val name = BukkitAttribute.parse(attribute.name.removePrefix("GENERIC_")).simplifiedKey.first()
+            val amount = modifier.amount
+            val operation = modifier.operation
+            val hand = BukkitEquipment.fromBukkit(modifier.slot)?.nms ?: "all"
+            section["$hand.$name"] = if (operation == AttributeModifier.Operation.ADD_SCALAR) "$amount%" else "+$amount"
+        }
     }
 
     override fun toString(): String {

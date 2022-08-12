@@ -11,6 +11,7 @@ import taboolib.common.platform.command.CommandHeader
 import taboolib.common.platform.command.mainCommand
 import taboolib.common.platform.command.subCommand
 import taboolib.common.platform.function.adaptPlayer
+import taboolib.common.platform.function.submit
 import taboolib.expansion.createHelper
 import taboolib.module.chat.TellrawJson
 import taboolib.module.chat.colored
@@ -86,13 +87,17 @@ object ZaphkielCommand {
                 }
                 execute<CommandSender> { _, context, argument ->
                     val player = Bukkit.getPlayerExact(argument)!!
-                    player.giveItem(Zaphkiel.api().getItemManager().generateItemStack(context.argument(-1), player)!!)
+                    val generateItemStack =
+                        Zaphkiel.api().getItemManager().generateItemStack(context.argument(-1), player)!!
+                    player.giveItem(generateItemStack)
                 }
                 dynamic(optional = true, commit = "amount") {
                     execute<CommandSender> { _, context, argument ->
                         val player = Bukkit.getPlayerExact(context.argument(-1))!!
                         val amount = argument.toIntOrNull() ?: 1
-                        player.giveItem(Zaphkiel.api().getItemManager().generateItemStack(context.argument(-2), player)!!, amount)
+                        player.giveItem(
+                            Zaphkiel.api().getItemManager().generateItemStack(context.argument(-2), player)!!, amount
+                        )
                     }
                 }
             }
@@ -121,6 +126,22 @@ object ZaphkielCommand {
         execute<CommandSender> { sender, _, _ ->
             Zaphkiel.api().reload()
             notify(sender, "成功.")
+        }
+    }
+
+    @CommandBody
+    val save = subCommand {
+        dynamic(commit = "name") {
+            execute<Player> { sender, _, argument ->
+                submit(async = true) {
+                    if (sender.itemInHand.isAir()) {
+                        notify(sender, "请手持物品.")
+                        return@submit
+                    }
+                    Zaphkiel.api().getItemSerializer().serializeToYAML(sender.itemInHand, argument)
+                    notify(sender, "保存成功.")
+                }
+            }
         }
     }
 

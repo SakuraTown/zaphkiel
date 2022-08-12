@@ -12,7 +12,8 @@ abstract class Meta(val root: ConfigurationSection) {
     /**
      * 元数据序号
      */
-    abstract val id: String
+    val id =
+        if (javaClass.isAssignableFrom(MetaKey::class.java)) javaClass.getAnnotation(MetaKey::class.java).value else javaClass.name.toString()
 
     /**
      * 元数据是否上锁
@@ -54,4 +55,6 @@ abstract class Meta(val root: ConfigurationSection) {
      */
     open fun drop(itemMeta: ItemMeta) {
     }
+
+    abstract fun fromMeta(key: String, itemMeta: ItemMeta, compound: ItemTag)
 }

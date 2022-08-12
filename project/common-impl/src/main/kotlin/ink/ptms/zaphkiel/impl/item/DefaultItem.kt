@@ -3,6 +3,7 @@ package ink.ptms.zaphkiel.impl.item
 import ink.ptms.zaphkiel.Zaphkiel
 import ink.ptms.zaphkiel.api.*
 import ink.ptms.zaphkiel.api.event.ItemBuildEvent
+import ink.ptms.zaphkiel.impl.DefaultZapAPI
 import ink.ptms.zaphkiel.impl.Translator
 import org.bukkit.entity.Player
 import org.bukkit.event.Cancellable
@@ -97,12 +98,23 @@ class DefaultItem(override val config: ConfigurationSection, override val group:
         val itemStream = DefaultItemStreamGenerated(icon.clone(), name.toMutableMap(), lore.toMutableMap())
         val compound = itemStream.sourceCompound.computeIfAbsent("zaphkiel") { ItemTag() }.asCompound()
         compound[ItemKey.ID.key] = ItemTagData(id)
+        //灵魂绑定uuid
+        if (DefaultZapAPI.allowSoulBind && player != null) {
+            data["SoulBind"] = player.uniqueId.toString()
+        }
         compound[ItemKey.DATA.key] = Translator.toNBTCompound(ItemTag(), data)
         return build(player, itemStream)
     }
 
     override fun build(player: Player?, itemStream: ItemStream): ItemStream {
         val pre = if (itemStream is DefaultItemStreamGenerated) {
+            //灵魂绑定lore
+            if (DefaultZapAPI.allowSoulBind && player != null) {
+                val string = DefaultZapAPI.config.getString("SoulBind.lore")
+                if (string != null) {
+                    itemStream.lore["SoulBind"] = mutableListOf(string.replace("%player%", player.displayName))
+                }
+            }
             ItemBuildEvent.Pre(player, itemStream, itemStream.name, itemStream.lore)
         } else {
             ItemBuildEvent.Pre(player, itemStream, name.toMutableMap(), lore.toMutableMap())
@@ -150,7 +162,12 @@ class DefaultItem(override val config: ConfigurationSection, override val group:
         giveItem(player, amount) { it.forEach { item -> player.world.dropItem(player.location, item) } }
     }
 
-    override fun invokeScript(key: String, event: PlayerEvent, itemStream: ItemStream, namespace: String): CompletableFuture<ItemEvent.ItemResult?>? {
+    override fun invokeScript(
+        key: String,
+        event: PlayerEvent,
+        itemStream: ItemStream,
+        namespace: String
+    ): CompletableFuture<ItemEvent.ItemResult?>? {
         val itemEvent = eventMap[key] ?: return null
         if (itemEvent.isCancelled && event is Cancellable) {
             event.isCancelled = true
@@ -158,7 +175,13 @@ class DefaultItem(override val config: ConfigurationSection, override val group:
         return itemEvent.invoke(event.player, event, itemStream, eventVars, namespace)
     }
 
-    override fun invokeScript(key: String, player: Player?, event: Event, itemStream: ItemStream, namespace: String): CompletableFuture<ItemEvent.ItemResult?>? {
+    override fun invokeScript(
+        key: String,
+        player: Player?,
+        event: Event,
+        itemStream: ItemStream,
+        namespace: String
+    ): CompletableFuture<ItemEvent.ItemResult?>? {
         val itemEvent = eventMap[key] ?: return null
         if (itemEvent.isCancelled && event is Cancellable) {
             event.isCancelled = true
@@ -166,7 +189,11 @@ class DefaultItem(override val config: ConfigurationSection, override val group:
         return itemEvent.invoke(player, event, itemStream, eventVars, namespace)
     }
 
-    fun getLockedData(map: MutableMap<String, ItemTagData?>, section: ConfigurationSection, path: String = ""): MutableMap<String, ItemTagData?> {
+    fun getLockedData(
+        map: MutableMap<String, ItemTagData?>,
+        section: ConfigurationSection,
+        path: String = ""
+    ): MutableMap<String, ItemTagData?> {
         section.getKeys(false).forEach { key ->
             if (key.endsWith("!!")) {
                 map[path + key.substring(0, key.length - 2)] = Translator.toNBTBase(config["data.$path$key"])

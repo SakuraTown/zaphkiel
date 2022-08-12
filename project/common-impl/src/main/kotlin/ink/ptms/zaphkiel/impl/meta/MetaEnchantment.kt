@@ -1,22 +1,30 @@
 package ink.ptms.zaphkiel.impl.meta
 
 import ink.ptms.zaphkiel.item.meta.Meta
+import ink.ptms.zaphkiel.item.meta.MetaKey
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.inventory.meta.EnchantmentStorageMeta
 import org.bukkit.inventory.meta.ItemMeta
 import org.bukkit.util.NumberConversions
 import taboolib.library.configuration.ConfigurationSection
+import taboolib.module.nms.ItemTag
 
 @MetaKey("enchantment")
 class MetaEnchantment(root: ConfigurationSection) : Meta(root) {
 
     val enchants = root.getConfigurationSection("meta.enchantment")?.getValues(false)
-            ?.map { Pair(Enchantment.getByName(it.key), NumberConversions.toInt(it.value)) }
-            ?.filter { it.first != null }
-            ?.toMap()
+        ?.map { Pair(Enchantment.getByName(it.key), NumberConversions.toInt(it.value)) }
+        ?.filter { it.first != null }
+        ?.toMap()
 
-    override val id: String
-        get() = "enchantment"
+    override fun fromMeta(key: String, itemMeta: ItemMeta, compound: ItemTag) {
+        val enchants = if (itemMeta is EnchantmentStorageMeta) itemMeta.storedEnchants else itemMeta.enchants
+        if (enchants.isEmpty()) return
+        val section = root.createSection(key)
+        enchants.forEach { (enchant, level) ->
+            section[enchant.name] = level
+        }
+    }
 
     override fun build(itemMeta: ItemMeta) {
         if (itemMeta is EnchantmentStorageMeta) {

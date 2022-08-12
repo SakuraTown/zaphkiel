@@ -1,10 +1,13 @@
 package ink.ptms.zaphkiel.impl.meta
 
 import ink.ptms.zaphkiel.item.meta.Meta
+import ink.ptms.zaphkiel.item.meta.MetaKey
+import org.bukkit.block.CreatureSpawner
 import org.bukkit.entity.EntityType
+import org.bukkit.inventory.meta.BlockStateMeta
 import org.bukkit.inventory.meta.ItemMeta
-import org.bukkit.inventory.meta.SpawnEggMeta
 import taboolib.library.configuration.ConfigurationSection
+import taboolib.module.nms.ItemTag
 
 /**
  * @author Administrator
@@ -15,13 +18,21 @@ class MetaSpawner(root: ConfigurationSection) : Meta(root) {
 
     val type = root.getString("meta.spawner").toString()
 
-    override val id: String
-        get() = "spawner"
+    override fun fromMeta(key: String, itemMeta: ItemMeta, compound: ItemTag) {
+        if (itemMeta !is BlockStateMeta) return
+        val blockState = itemMeta.blockState
+        if (blockState !is CreatureSpawner) return
+        root[key] = blockState.spawnedType.name
+        return
+    }
 
     override fun build(itemMeta: ItemMeta) {
-        if (itemMeta is SpawnEggMeta) {
-            itemMeta.spawnedType = kotlin.runCatching { EntityType.valueOf(type.uppercase()) }.getOrElse { EntityType.VILLAGER }
-        }
+        if (itemMeta !is BlockStateMeta) return
+        val blockState = itemMeta.blockState
+        if (blockState !is CreatureSpawner) return
+        blockState.spawnedType =
+            kotlin.runCatching { EntityType.valueOf(type.uppercase()) }.getOrElse { EntityType.VILLAGER }
+        itemMeta.blockState = blockState
     }
 
     override fun drop(itemMeta: ItemMeta) {

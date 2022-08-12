@@ -1,7 +1,7 @@
 val taboolib_version: String by project
 
 plugins {
-    id("io.izzel.taboolib") version "1.40"
+    id("io.izzel.taboolib") version "1.42"
 }
 
 taboolib {
@@ -14,7 +14,11 @@ taboolib {
     classifier = null
     version = taboolib_version
 }
-
+repositories {
+    maven {
+        url = uri("https://jitpack.io")
+    }
+}
 dependencies {
     api(project(":project:common"))
     compileOnly("ink.ptms:nms-all:1.0.0")
@@ -23,5 +27,6 @@ dependencies {
     compileOnly("public:AttributePlus:3.2.6")
     compileOnly("public:HeadDatabase:1.3.0")
     compileOnly("public:Tiphareth:1.0.0")
-    taboo("ink.ptms:um:1.0.0-beta-15")
+    compileOnly("com.github.Maxlego08:zAuctionHouseV3-API:3.0.8.2")
+    taboo("ink.ptms:um:1.0.0-beta9")
 }

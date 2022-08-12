@@ -3,6 +3,7 @@ package ink.ptms.zaphkiel.impl.meta
 import com.mojang.authlib.GameProfile
 import com.mojang.authlib.properties.Property
 import ink.ptms.zaphkiel.item.meta.Meta
+import ink.ptms.zaphkiel.item.meta.MetaKey
 import me.arcaniax.hdb.api.HeadDatabaseAPI
 import org.bukkit.inventory.meta.ItemMeta
 import org.bukkit.inventory.meta.SkullMeta
@@ -12,6 +13,7 @@ import taboolib.common.platform.function.warning
 import taboolib.common.reflect.Reflex.Companion.getProperty
 import taboolib.common.reflect.Reflex.Companion.setProperty
 import taboolib.library.configuration.ConfigurationSection
+import taboolib.module.nms.ItemTag
 import java.util.*
 
 /**
@@ -28,8 +30,17 @@ class MetaSkull(root: ConfigurationSection) : Meta(root) {
 
     val skullHeadDatabase = root.getString("meta.skull.head-database")
 
-    override val id: String
-        get() = "skull"
+    override fun fromMeta(key: String, itemMeta: ItemMeta, compound: ItemTag) {
+        if (itemMeta !is SkullMeta) return
+        val section = root.createSection(key)
+        section["owner"] = itemMeta.owner
+        val skull = compound["SkullOwner"] ?: return
+        val tag = skull.asCompound()
+        section["textures.id"] = UUID.randomUUID().toString()
+        section["textures.value"] =
+            tag["Properties"]?.asCompound()?.get("textures")?.asList()?.first()?.asCompound()?.get("Value")?.asString()
+        return
+    }
 
     override fun build(itemMeta: ItemMeta) {
         if (itemMeta is SkullMeta) {

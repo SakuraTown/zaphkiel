@@ -1,9 +1,11 @@
 package ink.ptms.zaphkiel.impl.meta
 
 import ink.ptms.zaphkiel.item.meta.Meta
+import ink.ptms.zaphkiel.item.meta.MetaKey
 import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.meta.ItemMeta
 import taboolib.library.configuration.ConfigurationSection
+import taboolib.module.nms.ItemTag
 
 @MetaKey("itemflag")
 class MetaItemFlag(root: ConfigurationSection) : Meta(root) {
@@ -13,8 +15,12 @@ class MetaItemFlag(root: ConfigurationSection) : Meta(root) {
         .toSet()
         .toTypedArray()
 
-    override val id: String
-        get() = "itemflag"
+    override fun fromMeta(key: String, itemMeta: ItemMeta, compound: ItemTag) {
+        val itemFlags = itemMeta.itemFlags
+        if (itemFlags.isEmpty()) return
+        root[key] = itemFlags.map { it.name }.toList()
+        return
+    }
 
     override fun build(itemMeta: ItemMeta) {
         itemMeta.addItemFlags(*itemflag)
