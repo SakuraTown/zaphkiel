@@ -1,7 +1,6 @@
 package ink.ptms.zaphkiel.impl.meta
 
 import ink.ptms.zaphkiel.item.meta.Meta
-import ink.ptms.zaphkiel.item.meta.MetaKey
 import org.bukkit.block.CreatureSpawner
 import org.bukkit.entity.EntityType
 import org.bukkit.inventory.meta.BlockStateMeta
@@ -17,6 +16,8 @@ import taboolib.module.nms.ItemTag
 class MetaSpawner(root: ConfigurationSection) : Meta(root) {
 
     val type = root.getString("meta.spawner").toString()
+    override val id: String
+        get() = "spawner"
 
     override fun fromMeta(key: String, itemMeta: ItemMeta, compound: ItemTag) {
         if (itemMeta !is BlockStateMeta) return

@@ -1,7 +1,6 @@
 package ink.ptms.zaphkiel.impl.meta
 
 import ink.ptms.zaphkiel.item.meta.Meta
-import ink.ptms.zaphkiel.item.meta.MetaKey
 import org.bukkit.entity.Player
 import org.bukkit.inventory.meta.ItemMeta
 import taboolib.common.util.asList
@@ -13,6 +12,9 @@ import taboolib.module.nms.ItemTagList
 class MetaCanDestroy(root: ConfigurationSection) : Meta(root) {
 
     val canDestroy = root["meta.can-destroy"]?.asList()
+
+    override val id: String
+        get() = "can-destroy"
 
     override fun build(player: Player?, compound: ItemTag) {
         if (canDestroy == null || compound.containsKey("CanDestroy")) {

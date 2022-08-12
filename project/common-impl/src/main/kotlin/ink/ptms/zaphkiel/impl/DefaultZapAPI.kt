@@ -11,11 +11,11 @@ import taboolib.common.io.newFile
 import taboolib.common.platform.Awake
 import taboolib.common.platform.event.SubscribeEvent
 import taboolib.common.platform.function.getDataFolder
-import taboolib.common.platform.function.releaseResourceFile
 import taboolib.common.util.unsafeLazy
 import taboolib.expansion.releaseDataContainer
 import taboolib.expansion.setupDataContainer
 import taboolib.expansion.setupPlayerDatabase
+import taboolib.module.configuration.Config
 import taboolib.module.configuration.Configuration
 
 /**
@@ -78,8 +78,9 @@ class DefaultZapAPI : ZapAPI {
         var soulBindDenyAnvil = false
         var soulBindDenyCraft = false
 
-        val config by unsafeLazy { Configuration.loadFromFile(releaseResourceFile("config.yml")) }
-
+        @Config
+        lateinit var config: Configuration
+            private set
         val instance by unsafeLazy { DefaultZapAPI() }
 
         @Awake(LifeCycle.LOAD)

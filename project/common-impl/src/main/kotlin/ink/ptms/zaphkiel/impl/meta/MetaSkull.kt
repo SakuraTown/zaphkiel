@@ -29,6 +29,8 @@ class MetaSkull(root: ConfigurationSection) : Meta(root) {
     } else null
 
     val skullHeadDatabase = root.getString("meta.skull.head-database")
+    override val id: String
+        get() = "skull"
 
     override fun fromMeta(key: String, itemMeta: ItemMeta, compound: ItemTag) {
         if (itemMeta !is SkullMeta) return

@@ -26,6 +26,8 @@ class MetaNative(root: ConfigurationSection) : Meta(root) {
             }
         }
     }
+    override val id: String
+        get() = "native"
 
     override fun fromMeta(key: String, itemMeta: ItemMeta, compound: ItemTag) {
         val section = root.createSection(key)

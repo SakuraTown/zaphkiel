@@ -2,7 +2,6 @@ package ink.ptms.zaphkiel.impl.meta
 
 import ink.ptms.zaphkiel.api.event.ItemReleaseEvent
 import ink.ptms.zaphkiel.item.meta.Meta
-import ink.ptms.zaphkiel.item.meta.MetaKey
 import org.bukkit.Material
 import org.bukkit.inventory.meta.ItemMeta
 import taboolib.library.configuration.ConfigurationSection
@@ -13,6 +12,8 @@ import taboolib.module.nms.ItemTag
 class MetaIcon(root: ConfigurationSection) : Meta(root) {
 
     val icon = root.getString("meta.icon")?.run { parseToMaterial() } ?: Material.STONE
+    override val id: String
+        get() = "icon"
 
     override fun fromMeta(key: String, itemMeta: ItemMeta, compound: ItemTag) {
         return

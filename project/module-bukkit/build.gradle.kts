@@ -13,6 +13,19 @@ taboolib {
     options("skip-minimize", "keep-kotlin-module", "skip-taboolib-relocate")
     classifier = null
     version = taboolib_version
+    description {
+        name(rootProject.name)
+        contributors {
+            name("Iseason")
+        }
+        dependencies {
+            name("PlaceholderAPI").optional(true)
+            name("Vault").optional(true)
+            name("HeadDatabase").optional(true)
+            name("Triton").optional(true)
+            name("zAuctionHouseV3").optional(true)
+        }
+    }
 }
 
 dependencies {

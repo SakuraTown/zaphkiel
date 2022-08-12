@@ -3,7 +3,6 @@ package ink.ptms.zaphkiel.impl.meta
 import ink.ptms.tiphareth.TipharethAPI
 import ink.ptms.zaphkiel.api.event.ItemReleaseEvent
 import ink.ptms.zaphkiel.item.meta.Meta
-import ink.ptms.zaphkiel.item.meta.MetaKey
 import org.bukkit.inventory.meta.ItemMeta
 import taboolib.library.configuration.ConfigurationSection
 import taboolib.module.nms.ItemTag
@@ -13,6 +12,8 @@ import taboolib.module.nms.ItemTag
 class MetaTiphareth(root: ConfigurationSection) : Meta(root) {
 
     val tiphareth = root.getString("meta.tiphareth")?.run { TipharethAPI.LOADER.getByName(this)?.buildItem() }
+    override val id: String
+        get() = "tiphareth"
 
     override fun fromMeta(key: String, itemMeta: ItemMeta, compound: ItemTag) {
         return

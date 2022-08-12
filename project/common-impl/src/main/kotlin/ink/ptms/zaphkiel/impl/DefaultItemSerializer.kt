@@ -12,12 +12,12 @@ import ink.ptms.zaphkiel.impl.item.DefaultSerializedItem
 import ink.ptms.zaphkiel.impl.meta.MetaUnique
 import org.apache.commons.lang3.time.DateFormatUtils
 import org.bukkit.inventory.ItemStack
+import org.serverct.ersha.taboolib.module.configuration.Configuration
+import org.serverct.ersha.taboolib.module.configuration.Type
 import taboolib.common.platform.function.getDataFolder
 import taboolib.library.reflex.Reflex.Companion.invokeConstructor
 import taboolib.library.xseries.XMaterial
 import taboolib.library.xseries.parseToItemStack
-import taboolib.module.configuration.Configuration
-import taboolib.module.configuration.Type
 import taboolib.module.nms.ItemTag
 import taboolib.module.nms.ItemTagData
 import taboolib.module.nms.ItemTagSerializer

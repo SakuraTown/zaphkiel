@@ -1,8 +1,8 @@
 package ink.ptms.zaphkiel.impl
 
 import ink.ptms.zaphkiel.api.*
+import ink.ptms.zaphkiel.impl.meta.MetaKey
 import ink.ptms.zaphkiel.item.meta.Meta
-import ink.ptms.zaphkiel.item.meta.MetaKey
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import taboolib.common.io.runningClasses
@@ -24,7 +24,7 @@ class DefaultItemManager : ItemManager {
 
     val registeredGroup = HashMap<String, Group>()
 
-    val registeredMeta = runningClasses
+    val registeredMeta: MutableMap<String, Class<out Meta>> = runningClasses
         .filter { it.isAnnotationPresent(MetaKey::class.java) }
         .filterIsInstance<Class<out Meta>>()
         .associateBy { it.getAnnotation(MetaKey::class.java).value }

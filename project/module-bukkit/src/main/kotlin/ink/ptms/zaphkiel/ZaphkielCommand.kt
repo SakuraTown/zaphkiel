@@ -87,9 +87,7 @@ object ZaphkielCommand {
                 }
                 execute<CommandSender> { _, context, argument ->
                     val player = Bukkit.getPlayerExact(argument)!!
-                    val generateItemStack =
-                        Zaphkiel.api().getItemManager().generateItemStack(context.argument(-1), player)!!
-                    player.giveItem(generateItemStack)
+                    player.giveItem(Zaphkiel.api().getItemManager().generateItemStack(context.argument(-1), player)!!)
                 }
                 dynamic(optional = true, commit = "amount") {
                     execute<CommandSender> { _, context, argument ->

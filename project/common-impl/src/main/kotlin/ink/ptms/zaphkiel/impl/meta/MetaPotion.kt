@@ -1,7 +1,6 @@
 package ink.ptms.zaphkiel.impl.meta
 
 import ink.ptms.zaphkiel.item.meta.Meta
-import ink.ptms.zaphkiel.item.meta.MetaKey
 import org.bukkit.inventory.meta.ItemMeta
 import org.bukkit.inventory.meta.PotionMeta
 import org.bukkit.potion.PotionData
@@ -27,6 +26,8 @@ class MetaPotion(root: ConfigurationSection) : Meta(root) {
                 Coerce.toInteger(it.value.toString().split("-").getOrElse(1) { 0 })
             )
         }?.toList()
+    override val id: String
+        get() = "potion"
 
     override fun fromMeta(key: String, itemMeta: ItemMeta, compound: ItemTag) {
         if (itemMeta !is PotionMeta) return

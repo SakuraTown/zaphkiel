@@ -29,8 +29,8 @@ class MetaInventory(root: ConfigurationSection) : Meta(root) {
         root[key] = Base64.getEncoder().encodeToString(string)
     }
 
-//    override val id: String
-//        get() = "inventory"
+    override val id: String
+        get() = "inventory"
 
     override fun build(itemMeta: ItemMeta) {
         if (bytes == null) return

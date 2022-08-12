@@ -2,7 +2,6 @@ package ink.ptms.zaphkiel.impl.meta
 
 import ink.ptms.zaphkiel.api.ItemKey
 import ink.ptms.zaphkiel.item.meta.Meta
-import ink.ptms.zaphkiel.item.meta.MetaKey
 import org.apache.commons.lang3.time.DateFormatUtils
 import org.bukkit.entity.Player
 import org.bukkit.inventory.meta.ItemMeta
@@ -15,6 +14,8 @@ import java.util.*
 class MetaUnique(root: ConfigurationSection) : Meta(root) {
 
     val unique = root.getBoolean("meta.unique")
+    override val id: String
+        get() = "unique"
 
     override fun fromMeta(key: String, itemMeta: ItemMeta, compound: ItemTag) {
         return

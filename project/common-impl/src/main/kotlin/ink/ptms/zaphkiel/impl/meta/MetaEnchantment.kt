@@ -1,7 +1,6 @@
 package ink.ptms.zaphkiel.impl.meta
 
 import ink.ptms.zaphkiel.item.meta.Meta
-import ink.ptms.zaphkiel.item.meta.MetaKey
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.inventory.meta.EnchantmentStorageMeta
 import org.bukkit.inventory.meta.ItemMeta
@@ -16,6 +15,9 @@ class MetaEnchantment(root: ConfigurationSection) : Meta(root) {
         ?.map { Pair(Enchantment.getByName(it.key), NumberConversions.toInt(it.value)) }
         ?.filter { it.first != null }
         ?.toMap()
+
+    override val id: String
+        get() = "enchantment"
 
     override fun fromMeta(key: String, itemMeta: ItemMeta, compound: ItemTag) {
         val enchants = if (itemMeta is EnchantmentStorageMeta) itemMeta.storedEnchants else itemMeta.enchants
