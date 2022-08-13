@@ -2,7 +2,6 @@ package ink.ptms.zaphkiel.impl.meta
 
 import ink.ptms.zaphkiel.impl.Translator
 import ink.ptms.zaphkiel.item.meta.Meta
-import ink.ptms.zaphkiel.item.meta.MetaKey
 import org.bukkit.entity.Player
 import org.bukkit.inventory.meta.ItemMeta
 import taboolib.library.configuration.ConfigurationSection

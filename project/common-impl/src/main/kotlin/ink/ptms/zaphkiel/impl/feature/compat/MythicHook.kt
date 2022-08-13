@@ -22,7 +22,6 @@ import taboolib.type.BukkitEquipment
  * @since 2021/5/24 11:47 上午
  */
 internal object MythicHook {
-
     @SubscribeEvent
     fun onSpawn(e: MobSpawnEvent) {
         val section = e.mob.config.getConfigurationSection(e.mob.id + ".Zaphkiel.equipments") ?: return

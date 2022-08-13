@@ -260,33 +260,43 @@ internal object ItemListener {
      */
     @SubscribeEvent(priority = EventPriority.MONITOR, ignoreCancelled = true)
     fun onPickup(e: PlayerPickupItemEvent) {
-        if (e.item.itemStack.isNotAir()) {
-            val itemStream = e.item.itemStack.toItemStream()
-            if (itemStream.isVanilla()) {
+        val cursor = e.player.openInventory.cursor
+        if (cursor != null &&
+            cursor.isNotAir() &&
+            DefaultZapAPI.allowSoulBind &&
+            DefaultZapAPI.soulBindDenyPickup &&
+            cursor.toItemStream().isExtension()
+        ) {
+            e.item.pickupDelay = 10
+            e.isCancelled = true
+            return
+        }
+        val itemStream = if (e.item.itemStack.isNotAir()) e.item.itemStack.toItemStream() else return
+        if (itemStream.isVanilla()) {
+            return
+        }
+        //灵魂绑定
+        if (DefaultZapAPI.allowSoulBind && DefaultZapAPI.soulBindDenyPickup) {
+            val uuid = itemStream.getSoulBindOwner()
+            if (uuid != null && e.player.uniqueId != uuid) {
+                e.isCancelled = true
+                e.item.pickupDelay = 10
+                e.item.teleport(Bukkit.getPlayer(uuid) ?: return)
                 return
             }
-            //灵魂绑定
-            if (DefaultZapAPI.allowSoulBind && DefaultZapAPI.soulBindDenyPickup) {
-                val uuid = itemStream.getSoulBindOwner()
-                if (uuid != null && e.player.uniqueId != uuid) {
-                    e.isCancelled = true
-                    e.item.pickupDelay = 10
-                    e.item.teleport(Bukkit.getPlayer(uuid) ?: return)
-                    return
-                }
-            }
-            val event = ItemEvent.Pick(itemStream, e)
-            event.call()
-            if (event.save) {
-                e.item.setItemStack(event.itemStream.rebuildToItemStack(e.player))
-            }
-            // 若脚本修改物品则写回事件
-            itemStream.getZaphkielItem().invokeScript("onPick", e.player, e, itemStream)?.thenAccept {
-                if (it != null) {
-                    e.item.setItemStack(it.itemStack)
-                }
+        }
+        val event = ItemEvent.Pick(itemStream, e)
+        event.call()
+        if (event.save) {
+            e.item.setItemStack(event.itemStream.rebuildToItemStack(e.player))
+        }
+        // 若脚本修改物品则写回事件
+        itemStream.getZaphkielItem().invokeScript("onPick", e.player, e, itemStream)?.thenAccept {
+            if (it != null) {
+                e.item.setItemStack(it.itemStack)
             }
         }
+
     }
 
     /**

@@ -106,7 +106,6 @@ open class DefaultItemStream(
         return getZaphkielCompound()!![ItemKey.ID.key]!!.asString()
     }
 
-    @Deprecated("命名歧义", replaceWith = ReplaceWith("getZaphkielHash"))
     @LegacyName("getZaphkielHash")
     override fun getZaphkielVersion(): String {
         if (isVanilla()) {
