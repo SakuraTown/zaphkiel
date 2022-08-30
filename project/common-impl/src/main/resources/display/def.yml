@@ -1,5 +1,6 @@
 DISPLAY_ITEM:
   name: '&7<NAME>'
   lore:
+    - '&9<SakuraBind>'
     - '&9<TYPE>'
     - '&f<LORE...>'

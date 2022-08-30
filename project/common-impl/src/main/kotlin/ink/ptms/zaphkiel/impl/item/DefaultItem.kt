@@ -105,7 +105,7 @@ class DefaultItem(override val config: ConfigurationSection, override val group:
         val icon = icon.clone()
         //绑定玩家
         if (DefaultZapAPI.allowSoulBind && player != null && SakuraBindHook.hasHook) {
-            SakuraBindAPI.bind(icon, player)
+            SakuraBindAPI.bind(icon, player, false)
         }
         val itemStream = DefaultItemStreamGenerated(icon, name.toMutableMap(), lore.toMutableMap())
         val compound = itemStream.sourceCompound.computeIfAbsent("zaphkiel") { ItemTag() }.asCompound()
@@ -121,7 +121,7 @@ class DefaultItem(override val config: ConfigurationSection, override val group:
             if (DefaultZapAPI.allowSoulBind && player != null && SakuraBindHook.hasHook) {
                 val bindLore = SakuraBindAPI.getBindLore(itemStream.sourceItem)
                 if (bindLore != null)
-                    itemStream.lore["SoulBind"] = mutableListOf(bindLore)
+                    itemStream.lore["SakuraBind"] = mutableListOf(bindLore)
             }
             ItemBuildEvent.Pre(player, itemStream, itemStream.name, itemStream.lore)
         } else {
