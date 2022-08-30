@@ -24,6 +24,7 @@ taboolib {
             name("HeadDatabase").optional(true)
             name("Triton").optional(true)
             name("zAuctionHouseV3").optional(true)
+            name("SakuraBind").optional(true)
         }
     }
 }

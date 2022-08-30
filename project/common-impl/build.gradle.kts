@@ -28,5 +28,6 @@ dependencies {
     compileOnly("public:HeadDatabase:1.3.0")
     compileOnly("public:Tiphareth:1.0.0")
     compileOnly("com.github.Maxlego08:zAuctionHouseV3-API:3.0.8.2")
+    compileOnly(fileTree("../../libs"))
     taboo("ink.ptms:um:1.0.0-beta9")
 }

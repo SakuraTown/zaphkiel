@@ -5,6 +5,7 @@ import ink.ptms.zaphkiel.api.*
 import ink.ptms.zaphkiel.api.event.ItemBuildEvent
 import ink.ptms.zaphkiel.impl.DefaultZapAPI
 import ink.ptms.zaphkiel.impl.Translator
+import ink.ptms.zaphkiel.impl.feature.hook.SakuraBindHook
 import org.bukkit.entity.Player
 import org.bukkit.event.Cancellable
 import org.bukkit.event.Event
@@ -24,6 +25,7 @@ import taboolib.platform.compat.replacePlaceholder
 import taboolib.platform.util.hasItem
 import taboolib.platform.util.isAir
 import taboolib.platform.util.takeItem
+import top.iseason.bukkit.sakurabind.SakuraBindAPI
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
 import java.util.function.Consumer
@@ -100,13 +102,15 @@ class DefaultItem(override val config: ConfigurationSection, override val group:
     }
 
     override fun build(player: Player?): ItemStream {
-        val itemStream = DefaultItemStreamGenerated(icon.clone(), name.toMutableMap(), lore.toMutableMap())
+        val icon = icon.clone()
+        //绑定玩家
+        if (DefaultZapAPI.allowSoulBind && player != null && SakuraBindHook.hasHook) {
+            SakuraBindAPI.bind(icon, player)
+        }
+        val itemStream = DefaultItemStreamGenerated(icon, name.toMutableMap(), lore.toMutableMap())
         val compound = itemStream.sourceCompound.computeIfAbsent("zaphkiel") { ItemTag() }.asCompound()
         compound[ItemKey.ID.key] = ItemTagData(id)
         //灵魂绑定uuid
-        if (DefaultZapAPI.allowSoulBind && player != null) {
-            data["SoulBind"] = player.uniqueId.toString()
-        }
         compound[ItemKey.DATA.key] = Translator.toNBTCompound(ItemTag(), data)
         return build(player, itemStream)
     }
@@ -114,11 +118,10 @@ class DefaultItem(override val config: ConfigurationSection, override val group:
     override fun build(player: Player?, itemStream: ItemStream): ItemStream {
         val pre = if (itemStream is DefaultItemStreamGenerated) {
             //灵魂绑定lore
-            if (DefaultZapAPI.allowSoulBind && player != null) {
-                val string = DefaultZapAPI.config.getString("SoulBind.lore")
-                if (string != null) {
-                    itemStream.lore["SoulBind"] = mutableListOf(string.replace("%player%", player.displayName))
-                }
+            if (DefaultZapAPI.allowSoulBind && player != null && SakuraBindHook.hasHook) {
+                val bindLore = SakuraBindAPI.getBindLore(itemStream.sourceItem)
+                if (bindLore != null)
+                    itemStream.lore["SoulBind"] = mutableListOf(bindLore)
             }
             ItemBuildEvent.Pre(player, itemStream, itemStream.name, itemStream.lore)
         } else {

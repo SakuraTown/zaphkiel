@@ -4,7 +4,6 @@ import ink.ptms.zaphkiel.api.ItemStream
 import ink.ptms.zaphkiel.api.event.ItemBuildEvent
 import ink.ptms.zaphkiel.api.event.ItemEvent
 import ink.ptms.zaphkiel.api.event.ItemReleaseEvent
-import ink.ptms.zaphkiel.impl.DefaultZapAPI
 import ink.ptms.zaphkiel.impl.item.toItemStream
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
@@ -13,9 +12,7 @@ import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.inventory.ClickType
 import org.bukkit.event.inventory.InventoryClickEvent
-import org.bukkit.event.inventory.PrepareItemCraftEvent
 import org.bukkit.event.player.*
-import org.bukkit.inventory.AnvilInventory
 import org.bukkit.inventory.EquipmentSlot
 import taboolib.common.platform.Schedule
 import taboolib.common.platform.event.EventPriority
@@ -103,10 +100,6 @@ internal object ItemListener {
         }
         val itemStream = itemStack.toItemStream()
         if (itemStream.isExtension()) {
-            if (DefaultZapAPI.soulBindDenyConsume) {
-                e.isCancelled = true
-                return
-            }
             // 触发事件
             ItemEvent.Consume(itemStream, e).also { it.call() }
             // 执行脚本
@@ -132,13 +125,6 @@ internal object ItemListener {
         val itemStream = e.item!!.toItemStream()
         if (itemStream.isVanilla()) {
             return
-        }
-        if (DefaultZapAPI.allowSoulBind) {
-            val uuid = itemStream.getSoulBindOwner()
-            if (uuid != null && e.player.uniqueId != uuid) {
-                e.isCancelled = true
-                return
-            }
         }
         // 触发事件
         val event = ItemEvent.Interact(itemStream, e)
@@ -172,13 +158,6 @@ internal object ItemListener {
             val itemStream = e.player.inventory.itemInMainHand.toItemStream()
             if (itemStream.isVanilla()) {
                 return
-            }
-            if (DefaultZapAPI.allowSoulBind) {
-                val uuid = itemStream.getSoulBindOwner()
-                if (uuid != null && e.player.uniqueId != uuid) {
-                    e.isCancelled = true
-                    return
-                }
             }
             val event = ItemEvent.InteractEntity(itemStream, e)
             if (event.call()) {
@@ -236,10 +215,6 @@ internal object ItemListener {
             if (itemStream.isVanilla()) {
                 return
             }
-            if (DefaultZapAPI.allowSoulBind && DefaultZapAPI.soulBindDenyDrop) {
-                e.isCancelled = true
-                return
-            }
             val event = ItemEvent.Drop(itemStream, e)
             event.call()
             if (event.save) {
@@ -260,30 +235,9 @@ internal object ItemListener {
      */
     @SubscribeEvent(priority = EventPriority.MONITOR, ignoreCancelled = true)
     fun onPickup(e: PlayerPickupItemEvent) {
-        val cursor = e.player.openInventory.cursor
-        if (cursor != null &&
-            cursor.isNotAir() &&
-            DefaultZapAPI.allowSoulBind &&
-            DefaultZapAPI.soulBindDenyPickup &&
-            cursor.toItemStream().isExtension()
-        ) {
-            e.item.pickupDelay = 10
-            e.isCancelled = true
-            return
-        }
         val itemStream = if (e.item.itemStack.isNotAir()) e.item.itemStack.toItemStream() else return
         if (itemStream.isVanilla()) {
             return
-        }
-        //灵魂绑定
-        if (DefaultZapAPI.allowSoulBind && DefaultZapAPI.soulBindDenyPickup) {
-            val uuid = itemStream.getSoulBindOwner()
-            if (uuid != null && e.player.uniqueId != uuid) {
-                e.isCancelled = true
-                e.item.pickupDelay = 10
-                e.item.teleport(Bukkit.getPlayer(uuid) ?: return)
-                return
-            }
         }
         val event = ItemEvent.Pick(itemStream, e)
         event.call()
@@ -296,7 +250,6 @@ internal object ItemListener {
                 e.item.setItemStack(it.itemStack)
             }
         }
-
     }
 
     /**
@@ -307,17 +260,6 @@ internal object ItemListener {
     fun onClick(e: InventoryClickEvent) {
         val itemStreamCurrent = if (e.currentItem.isNotAir()) e.currentItem!!.toItemStream() else null
         var itemStreamButton: ItemStream? = null
-        if (DefaultZapAPI.soulBindDenyInventory &&
-            e.clickedInventory == e.view.topInventory &&
-            itemStreamCurrent != null &&
-            itemStreamCurrent.isExtension()
-        ) {
-            val soulBindOwner = itemStreamCurrent.getSoulBindOwner() ?: return
-            if (soulBindOwner != e.whoClicked.uniqueId) {
-                e.isCancelled = true
-                return
-            }
-        }
         if (e.click == ClickType.NUMBER_KEY) {
             val hotbarButton = e.whoClicked.inventory.getItem(e.hotbarButton)
             if (hotbarButton.isNotAir()) {
@@ -335,40 +277,6 @@ internal object ItemListener {
             if (event.saveButton && itemStreamButton != null) {
                 itemStreamButton.rebuildToItemStack(e.whoClicked as Player)
             }
-        }
-    }
-
-    //禁止铁砧使用
-    @SubscribeEvent(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    fun onAnvil(e: InventoryClickEvent) {
-        if (!DefaultZapAPI.soulBindDenyAnvil) return
-        if (e.inventory !is AnvilInventory) return
-        if (e.rawSlot != 2) return
-        e.inventory.getItem(0)?.apply {
-            if (isAir()) return
-            if (toItemStream().isVanilla()) return
-            e.isCancelled = true
-            return
-        }
-        e.inventory.getItem(1)?.apply {
-            if (isAir()) return
-            if (toItemStream().isVanilla()) return
-            e.isCancelled = true
-        }
-    }
-
-    //禁止合成
-    @SubscribeEvent(priority = EventPriority.MONITOR)
-    fun onCraft(e: PrepareItemCraftEvent) {
-        if (!DefaultZapAPI.soulBindDenyCraft) return
-        val inventory = e.inventory
-        if (inventory.result == null) return
-        for (matrix in inventory.matrix) {
-            if (matrix.isAir()) continue
-            if (matrix.toItemStream().isVanilla())
-                continue
-            inventory.result = null
-            break
         }
     }
 

@@ -12,7 +12,6 @@ import org.bukkit.inventory.ItemStack
 import taboolib.common.util.unsafeLazy
 import taboolib.module.nms.*
 import taboolib.platform.util.isNotAir
-import java.util.*
 
 /**
  * Zaphkiel
@@ -121,14 +120,6 @@ open class DefaultItemStream(
         return getZaphkielCompound()!![ItemKey.DATA.key]!!.asCompound()
     }
 
-    override fun getSoulBindOwner(): UUID? {
-        val asString = getZaphkielCompound()!![ItemKey.DATA.key]!!.asCompound()["SoulBind"]?.asString() ?: return null
-        return try {
-            UUID.fromString(asString)
-        } catch (e: Exception) {
-            null
-        }
-    }
 
     override fun getZaphkielUniqueData(): ItemTag? {
         if (isVanilla()) {

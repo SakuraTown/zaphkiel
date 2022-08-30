@@ -18,11 +18,4 @@ Durability:
 
 SoulBind:
   enable: true
-  lore: "灵魂绑定: %player%"
-  deny-inventory: true
-  deny-anvil: true
-  deny-craft: true
-  deny-pickup: true
-  deny-drop: true
-  deny-consume: true
 

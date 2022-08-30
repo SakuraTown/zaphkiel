@@ -56,12 +56,6 @@ class DefaultZapAPI : ZapAPI {
     override fun reload() {
         config.reload()
         allowSoulBind = config.getBoolean("SoulBind.enable")
-        soulBindDenyPickup = config.getBoolean("SoulBind.deny-pickup")
-        soulBindDenyDrop = config.getBoolean("SoulBind.deny-drop")
-        soulBindDenyConsume = config.getBoolean("SoulBind.deny-consume")
-        soulBindDenyInventory = config.getBoolean("SoulBind.deny-inventory")
-        soulBindDenyAnvil = config.getBoolean("SoulBind.deny-anvil")
-        soulBindDenyCraft = config.getBoolean("SoulBind.deny-craft")
         // 重载物品
         defaultItemLoader.reload()
         // 更新玩家背包
@@ -71,12 +65,6 @@ class DefaultZapAPI : ZapAPI {
     companion object {
 
         var allowSoulBind = false
-        var soulBindDenyPickup = false
-        var soulBindDenyDrop = false
-        var soulBindDenyConsume = false
-        var soulBindDenyInventory = false
-        var soulBindDenyAnvil = false
-        var soulBindDenyCraft = false
 
         @Config
         lateinit var config: Configuration
